@@ -1,11 +1,6 @@
-import type { LinksFunction } from "@remix-run/cloudflare";
-import {
-  Links,
-  Meta,
-  Outlet,
-  Scripts,
-  ScrollRestoration,
-} from "@remix-run/react";
+import { captureRemixErrorBoundaryError } from "@sentry/remix";
+import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/cloudflare";
+import { json, Links, Meta, Outlet, Scripts, ScrollRestoration, useLoaderData, useRouteError } from "@remix-run/react";
 
 import "./tailwind.css";
 
@@ -22,24 +17,48 @@ export const links: LinksFunction = () => [
   },
 ];
 
-export function Layout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en">
-      <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <Meta />
-        <Links />
-      </head>
-      <body>
-        {children}
-        <ScrollRestoration />
-        <Scripts />
-      </body>
-    </html>
-  );
+export const loader = ({ context } : LoaderFunctionArgs) => {
+    return json({
+        ENV: {
+            SENTRY_DSN: context.cloudflare.env.SENTRY_DSN,
+            SENTRY_ENABLED: context.cloudflare.env.SENTRY_ENABLED
+        }
+    });
 }
 
+export function Layout({ children }: { children: React.ReactNode }) {
+    const data = useLoaderData<typeof loader>();
+
+    return (
+        <html lang="en">
+            <head>
+                <meta charSet="utf-8" />
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <Meta />
+                <Links />
+            </head>
+            <body>
+                {children}
+                <ScrollRestoration />
+                <Scripts />
+                <script
+                    dangerouslySetInnerHTML={{
+                        __html: `window.ENV = ${JSON.stringify(
+                            data.ENV
+                        )}`,
+                    }}
+                />
+            </body>
+        </html>
+    );
+}
+
+export const ErrorBoundary = () => {
+  const error = useRouteError();
+  captureRemixErrorBoundaryError(error);
+  return <div>Something went wrong</div>;
+};
+
 export default function App() {
-  return <Outlet />;
+    return <Outlet />;
 }
