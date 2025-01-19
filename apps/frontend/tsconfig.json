@@ -1,12 +1,8 @@
 {
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "**/.server/**/*.ts",
-    "**/.server/**/*.tsx",
-    "**/.client/**/*.ts",
-    "**/.client/**/*.tsx"
-  ],
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "@straumur/tsconfig/base.json",
+  "include": [ "**/*.ts", "**/*.tsx" ],
+  "exclude": [ "node_modules", "build", "public/build" ],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "types": [
@@ -29,7 +25,6 @@
     "paths": {
       "~/*": ["./app/*"]
     },
-
     // Vite takes care of building everything, not tsc.
     "noEmit": true
   }

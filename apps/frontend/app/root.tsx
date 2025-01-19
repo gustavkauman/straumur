@@ -1,6 +1,6 @@
-import { captureRemixErrorBoundaryError } from "@sentry/remix";
-import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/cloudflare";
-import { json, Links, Meta, Outlet, Scripts, ScrollRestoration, useLoaderData, useRouteError } from "@remix-run/react";
+import { captureRemixErrorBoundaryError, withSentry, SentryMetaArgs } from "@sentry/remix";
+import type { LinksFunction, LoaderFunctionArgs, MetaFunction } from "@remix-run/cloudflare";
+import { json, Links, Meta, Outlet, Scripts, ScrollRestoration, useRouteError, useRouteLoaderData } from "@remix-run/react";
 
 import "./tailwind.css";
 
@@ -21,13 +21,30 @@ export const loader = ({ context } : LoaderFunctionArgs) => {
     return json({
         ENV: {
             SENTRY_DSN: context.cloudflare.env.SENTRY_DSN,
-            SENTRY_ENABLED: context.cloudflare.env.SENTRY_ENABLED
+            SENTRY_ENABLED: context.cloudflare.env.SENTRY_ENABLED,
+            SENTRY_ENVIRONMENT: context.cloudflare.env.SENTRY_ENVIRONMENT,
         }
     });
 }
 
+export const meta = ({ data } : SentryMetaArgs<MetaFunction<typeof loader>>) => {
+    return [
+        {
+            title: "Straumur"
+        },
+        {
+            name: "sentry-trace",
+            content: data.sentryTrace
+        },
+        {
+            name: "baggage",
+            content: data.sentryBaggage
+        }
+    ];
+}
+
 export function Layout({ children }: { children: React.ReactNode }) {
-    const data = useLoaderData<typeof loader>();
+    const data = useRouteLoaderData<typeof loader>("root");
 
     return (
         <html lang="en">
@@ -39,15 +56,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
             </head>
             <body>
                 {children}
-                <ScrollRestoration />
-                <Scripts />
                 <script
                     dangerouslySetInnerHTML={{
                         __html: `window.ENV = ${JSON.stringify(
-                            data.ENV
+                            data?.ENV
                         )}`,
                     }}
                 />
+                <ScrollRestoration />
+                <Scripts />
             </body>
         </html>
     );
@@ -59,6 +76,8 @@ export const ErrorBoundary = () => {
   return <div>Something went wrong</div>;
 };
 
-export default function App() {
+function App() {
     return <Outlet />;
 }
+
+export default withSentry(App);

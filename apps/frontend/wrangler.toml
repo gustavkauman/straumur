@@ -3,3 +3,8 @@ name = "straumur"
 compatibility_date = "2024-11-12"
 compatibility_flags = ["nodejs_compat"]
 pages_build_output_dir = "./build/client"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "straumur"
+database_id = "57f4b23e-60cf-4f9f-9e82-1bdf41471533"

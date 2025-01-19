@@ -1,0 +1,29 @@
+{
+    "name": "@straumur/rss-parser",
+    "version": "0.0.0",
+    "private": true,
+    "type": "module",
+    "main": "./dist/index.js",
+    "module": "./src/index.ts",
+    "types": "./src/types.d.ts",
+    "author": "Gustav Utke Kauman <hello@kauman.dev>",
+    "scripts": {
+        "build": "tsc && cp src/types.d.ts dist/",
+        "clean": "rm -rf .turbo dist node_modules"
+    },
+    "dependencies": {
+        "fast-xml-parser": "catalog:"
+    },
+    "devDependencies": {
+        "@straumur/tsconfig": "workspace:*",
+        "@types/node": "catalog:",
+        "typescript": "catalog:"
+    },
+    "engines": {
+        "node": ">=20.0.0"
+    },
+    "exports": {
+        "import": "./dist/index.js",
+        "require": "./dist/index.js"
+    }
+}

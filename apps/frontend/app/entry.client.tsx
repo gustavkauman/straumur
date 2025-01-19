@@ -12,14 +12,18 @@ import { hydrateRoot } from "react-dom/client";
 Sentry.init({
     dsn: window.ENV.SENTRY_DSN,
     enabled: window.ENV.SENTRY_ENABLED === "true",
-    tracesSampleRate: 1,
+    environment: window.ENV.SENTRY_ENVIRONMENT,
+    integrations: [
+        Sentry.browserTracingIntegration({
+            useLocation,
+            useEffect,
+            useMatches
+        }),
+    ],
+    tracesSampleRate: 1.0,
+    tracePropagationTargets: ["localhost"],
+});
 
-    integrations: [Sentry.browserTracingIntegration({
-      useEffect,
-      useLocation,
-      useMatches
-    })]
-})
 
 startTransition(() => {
   hydrateRoot(
