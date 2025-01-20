@@ -1,32 +1,24 @@
-import type { LoaderFunctionArgs } from "@remix-run/cloudflare";
 import { json, Link, useLoaderData } from "@remix-run/react";
 import { customAlphabet } from "nanoid";
 import { rssParse } from "@straumur/rss-parser";
+import type { Feed ,Article } from "@straumur/types";
 
-type Article = {
-    id: string;
-    title: string;
-    url: string,
-    author: string;
-    published_at: string;
-}
-
-export const loader = async ({ context } : LoaderFunctionArgs) => {
+export const loader = async () => {
     const nanoid = customAlphabet("0123456789abcdefghijklmnopqrstuvwxyz", 12);
-    /*
-    const db = Sentry.instrumentD1WithSentry(context.cloudflare.env.DB);
 
-    const result = await db
-        .prepare("SELECT * FROM articles")
-        .all<Article>();
-
-    const articles = result.results;
-    */
+    const feeds: { [index: string]: Feed } = {
+        "lobsters": {
+            id: "lobsters",
+            name: "Lobsters",
+            favicon_url: "https://lobste.rs/favicon.ico"
+        }
+    };
 
     const parsedFeed = await rssParse("https://lobste.rs/rss");
     const articles = parsedFeed.items?.map((item) => {
         return {
             id: nanoid(),
+            feed_id: "lobsters",
             title: item.title,
             url: item.link,
             author: item.author,
@@ -34,24 +26,38 @@ export const loader = async ({ context } : LoaderFunctionArgs) => {
         } as Article;
     });
 
-    return json({ articles: articles ?? [] });
+    return json({
+        feeds, 
+        articles: articles ?? [] 
+    });
 }
 
 export default function Feed() {
-    const { articles } = useLoaderData<typeof loader>();
+    const { feeds, articles } = useLoaderData<typeof loader>();
 
     return (
-        <div className="flex h-screen items-center justify-center">
-            <div className="items-center">
+        <div className="flex h-screen">
+            <div className="flex w-[300px] px-4 justify-center">
+                <h1>Straumur</h1>
+            </div>
+            <div className="flex-col flex-1 self-center overflow-scroll">
                 {
                     articles.map((article) => (
-                        <div key={article.id}>
-                            <Link 
-                                to={article.url}
-                            >
-                                {article.title}
-                            </Link>
-                            <p className="font-xs">{article.author}</p>
+                        <div key={article.id} className="flex items-center h-[45px] my-4">
+                            <img 
+                                src={feeds[article.feed_id].favicon_url}
+                                alt={`${feeds[article.feed_id].name} logo`}
+                                className="rounded-full max-h-full max-w-full object-contain"
+                            />
+                            <div className="flex flex-col ml-6">
+                                <Link
+                                    to={article.url}
+                                    className="text-lg"
+                                >
+                                    {article.title}
+                                </Link>
+                                <p className="text-xs">{article.author}</p>
+                            </div>
                         </div>
                     ))
                 }

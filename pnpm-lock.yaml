@@ -131,6 +131,9 @@ importers:
       '@straumur/rss-parser':
         specifier: workspace:*
         version: link:../../packages/rss-parser
+      '@straumur/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       isbot:
         specifier: 'catalog:'
         version: 4.4.0
@@ -153,6 +156,9 @@ importers:
       '@straumur/tsconfig':
         specifier: workspace:*
         version: link:../../packages/tsconfig
+      '@straumur/types':
+        specifier: workspace:*
+        version: link:../../packages/types
       '@types/react':
         specifier: 'catalog:'
         version: 18.3.18
@@ -222,6 +228,34 @@ importers:
         version: 5.7.3
 
   packages/tsconfig: {}
+
+  packages/types:
+    devDependencies:
+      '@straumur/tsconfig':
+        specifier: workspace:*
+        version: link:../tsconfig
+      typescript:
+        specifier: 'catalog:'
+        version: 5.7.3
+
+  packages/ui:
+    dependencies:
+      react:
+        specifier: 'catalog:'
+        version: 18.3.1
+    devDependencies:
+      '@remix-run/react':
+        specifier: 'catalog:'
+        version: 2.15.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.7.3)
+      '@straumur/tsconfig':
+        specifier: workspace:*
+        version: link:../tsconfig
+      '@types/react':
+        specifier: 'catalog:'
+        version: 18.3.18
+      typescript:
+        specifier: 'catalog:'
+        version: 5.7.3
 
 packages:
 

@@ -1,0 +1,3 @@
+{
+  "extends": "@straumur/tsconfig/base.json"
+}
