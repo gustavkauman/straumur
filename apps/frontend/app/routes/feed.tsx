@@ -5,16 +5,21 @@ import { LoaderFunctionArgs } from "@remix-run/cloudflare";
 export const loader = async ({ context }: LoaderFunctionArgs) => {
     const db = context.cloudflare.env.DB;
 
-    const getFeeds = async (): Promise<{ [index: number]: Feed }> => {
-        const { results: feeds } = await db.prepare("select * from feeds").all<Feed>();
-        return feeds.reduce((acc, row) => {
-            acc[row.id] = row;
-            return acc
-        }, {} as Record<number, Feed>);
+    const getFeeds = async (): Promise<Feed[]> => {
+        const { results: feeds } = await db.prepare("select * from feeds order by name asc").all<Feed>();
+        return feeds;
     };
 
-    const getArticles = async (): Promise<Article[]> => {
-        const { results: articles } = await db.prepare("select * from articles order by published_at asc").all<Article>();
+    type ArticleWithAdditionalData = Article & { feed_name: string, favicon_url: string };
+
+    const getArticles = async (): Promise<ArticleWithAdditionalData[]> => {
+        const { results: articles } = await db
+            .prepare(`
+select a.*, f.name as feed_name, f.favicon_url
+from articles a
+left join feeds f on a.feed_id = f.id
+order by published_at asc`)
+            .all<ArticleWithAdditionalData>();
         return articles;
     }
 
@@ -48,7 +53,7 @@ export default function Feed() {
                         <p className="font-bold mb-2">Feeds</p>
                         <div className="ml-4">
                         {
-                            Object.values(feeds).map((feed) => (
+                            feeds.map((feed) => (
                                 <p key={feed.id}><Link to={`${feed.id}`}>{feed.name}</Link></p>
                             ))
                         }
@@ -60,8 +65,8 @@ export default function Feed() {
                         articles.map((article) => (
                             <div key={article.id} className="flex items-center h-[45px] my-4">
                                 <img 
-                                    src={feeds[article.feed_id].favicon_url}
-                                    alt={`${feeds[article.feed_id].name} logo`}
+                                    src={article.favicon_url}
+                                    alt={`${article.feed_name} logo`}
                                     className="rounded-full max-h-full max-w-full object-contain"
                                 />
                                 <div className="flex flex-col ml-6">
