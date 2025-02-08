@@ -1,13 +1,14 @@
 export type Feed = {
-    id: string;
+    id: number;
     name: string;
+    url: string;
     favicon_url: string;
 };
 export type Article = {
-    id: string;
-    feed_id: string;
+    id: number;
+    feed_id: number;
     title: string;
     url: string;
     author: string;
-    published_at: string;
+    published_at: Date;
 };

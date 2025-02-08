@@ -4,6 +4,10 @@
   "private": true,
   "author": "Gustav Utke Kauman <hello@kauman.dev>",
   "packageManager": "pnpm@10.0.0",
+  "scripts": {
+    "db:migrate": "npx wrangler d1 migrations apply straumur -c=./apps/update-feeds/wrangler.toml --local --persist-to=./.wrangler/state",
+    "db:seed": "npx wrangler d1 execute straumur --file=./db-seeds/seed.sql -c=./apps/update-feeds/wrangler.toml --local --persist-to=./.wrangler/state"
+  },
   "engines": {
     "node": ">=20.0.0"
   },

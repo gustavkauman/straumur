@@ -1,50 +1,24 @@
 import { json, Link, useLoaderData } from "@remix-run/react";
-import { customAlphabet } from "nanoid";
-import { rssParse } from "@straumur/rss-parser";
 import type { Feed ,Article } from "@straumur/types";
+import { LoaderFunctionArgs } from "@remix-run/cloudflare";
 
-export const loader = async () => {
-    const nanoid = customAlphabet("0123456789abcdefghijklmnopqrstuvwxyz", 12);
+export const loader = async ({ context }: LoaderFunctionArgs) => {
+    const db = context.cloudflare.env.DB;
 
-    const feeds: { [index: string]: Feed } = {
-        "lobsters": {
-            id: "lobsters",
-            name: "Lobsters",
-            favicon_url: "https://lobste.rs/favicon.ico"
-        },
-        "hackernews": {
-            id: "hackernews",
-            name: "Hacker News",
-            favicon_url: "https://news.ycombinator.com/favicon.ico"
-        }
+    const getFeeds = async (): Promise<{ [index: number]: Feed }> => {
+        const { results: feeds } = await db.prepare("select * from feeds").all<Feed>();
+        return feeds.reduce((acc, row) => {
+            acc[row.id] = row;
+            return acc
+        }, {} as Record<number, Feed>);
     };
 
-    const lobstersFeed = await rssParse("https://lobste.rs/rss");
-    const lobstersArticles = lobstersFeed.items?.map((item) => {
-        return {
-            id: nanoid(),
-            feed_id: "lobsters",
-            title: item.title,
-            url: item.link,
-            author: item.author,
-            published_at: item.pubDate ? new Date(item.pubDate) : null
-        } as Article;
-    });
+    const getArticles = async (): Promise<Article[]> => {
+        const { results: articles } = await db.prepare("select * from articles order by published_at asc").all<Article>();
+        return articles;
+    }
 
-    const hnFeed = await rssParse("https://news.ycombinator.com/rss");
-    const hnArticles = hnFeed.items?.map((item) => {
-        return {
-            id: nanoid(),
-            feed_id: "hackernews",
-            title: item.title,
-            url: item.link,
-            author: item.author,
-            published_at: item.pubDate ? new Date(item.pubDate) : null
-        } as Article;
-    });
-
-    const articles = lobstersArticles?.concat(hnArticles ?? []) ?? [];
-    articles.sort((a, b) => a.published_at.getTime() - b.published_at.getTime());
+    const [feeds, articles] = await Promise.all([getFeeds(), getArticles()]);
 
     return json({
         feeds, 
@@ -58,14 +32,14 @@ export default function Feed() {
     return (
         <div className="flex flex-col max-h-screen">
             <div className="
-                flex sticky top-0 z-40 w-full h-[3rem] dark:bg-gray-950 align-middle justify-center leading-[3rem]
+                flex fixed top-0 z-40 w-full h-[3rem] dark:bg-gray-950 align-middle justify-center leading-[3rem]
                 px-4 text-end border-b border-slate-50/[0.06]
             ">
                 <div className="flex justify-end w-[80%]">
                     <p>Howdy, user!</p>
                 </div>
             </div>
-            <div className="w-[90rem] mx-auto px-8">
+            <div className="w-[90rem] mx-auto mt-[3rem] px-8">
                 <div className="w-[17rem] px-4 justify-center fixed block p-4 border-r border-slate-50/[0.06] h-screen">
                     <div className="font-bold text-lg">
                         <h1>Straumur</h1>
@@ -75,7 +49,7 @@ export default function Feed() {
                         <div className="ml-4">
                         {
                             Object.values(feeds).map((feed) => (
-                                <p key={feed.id}><Link to={feed.id}>{feed.name}</Link></p>
+                                <p key={feed.id}><Link to={`${feed.id}`}>{feed.name}</Link></p>
                             ))
                         }
                         </div>

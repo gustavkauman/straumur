@@ -3,13 +3,14 @@ packages:
   - 'packages/*'
 
 catalog:
+  '@cloudflare/vitest-pool-workers': '^0.6.4'
+  '@cloudflare/workers-types': '^4.20250121.0'
   '@remix-run/cloudflare': '^2.14.0'
   '@remix-run/cloudflare-pages': '^2.14.0'
   '@remix-run/react': '^2.14.0'
   '@sentry/cloudflare': '^8.40.0'
   '@sentry/remix': '^8.40.0'
   '@sentry/vite-plugin': '^2.22.6'
-  '@cloudflare/workers-types': '^4.20241112.0'
   '@remix-run/dev': '^2.14.0'
   '@types/react': '^18.2.20'
   '@types/react-dom': '^18.2.7'
@@ -32,5 +33,6 @@ catalog:
   'tailwindcss': '^3.4.4'
   'typescript': '^5.1.6'
   'vite': '^5.1.0'
+  'vitest': '2.1.8'
   'vite-tsconfig-paths': '^4.2.1'
-  'wrangler': '3.57.1'
+  'wrangler': '3.105.0'
