@@ -35,4 +35,4 @@ catalog:
   'vite': '^5.1.0'
   'vitest': '2.1.8'
   'vite-tsconfig-paths': '^4.2.1'
-  'wrangler': '3.105.0'
+  'wrangler': '3.107.3'
