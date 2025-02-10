@@ -4,6 +4,10 @@ compatibility_date = "2025-01-21"
 compatibility_flags = ["nodejs_compat"]
 pages_build_output_dir = "./build/client"
 
+[vars]
+GOOGLE_CLIENT_ID="706944365506-45j0lthq4dc27i4jr05lplp6npdrrllj.apps.googleusercontent.com"
+GOOGLE_CLIENT_SECRET=""
+
 [[d1_databases]]
 binding = "DB"
 database_name = "straumur"

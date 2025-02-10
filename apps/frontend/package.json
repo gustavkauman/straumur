@@ -22,6 +22,7 @@
     "@sentry/vite-plugin": "catalog:",
     "@straumur/rss-parser": "workspace:*",
     "@straumur/ui": "workspace:*",
+    "google-auth-library": "^9.15.1",
     "isbot": "catalog:",
     "nanoid": "catalog:",
     "react": "catalog:",

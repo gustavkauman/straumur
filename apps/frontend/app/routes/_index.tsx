@@ -1,5 +1,7 @@
-import type { MetaFunction } from "@remix-run/cloudflare";
+import { json, type LoaderFunctionArgs, type MetaFunction } from "@remix-run/cloudflare";
+import { useLoaderData } from "@remix-run/react";
 import { Button } from "@straumur/ui";
+import { OAuth2Client } from "google-auth-library";
 
 export const meta: MetaFunction = () => {
   return [
@@ -8,8 +10,24 @@ export const meta: MetaFunction = () => {
   ];
 };
 
+export async function loader({ context }: LoaderFunctionArgs) {
+    const oauthClient = new OAuth2Client({
+        clientId: context.cloudflare.env.GOOGLE_CLIENT_ID,
+        redirectUri: "http://localhost:5173/auth/sso/google/callback"
+    });
+
+    const url = oauthClient.generateAuthUrl({
+        access_type: "offline",
+        scope: ["openid", "email", "profile"]
+    });
+
+    return json({ authUrl: url });
+}
+
 export default function Index() {
-  return (
+    const { authUrl } = useLoaderData<typeof loader>();
+
+    return (
       <div className="flex h-screen items-center justify-center">
           <div className="flex flex-col items-center gap-16">
               <header className="flex flex-col items-center gap-2">
@@ -21,7 +39,7 @@ export default function Index() {
                   </h2>
               </header>
               <div>
-                <Button to={"/feed"}>Login with Google</Button>
+                <Button to={authUrl}>Login with Google</Button>
               </div>
           </div>
       </div>
