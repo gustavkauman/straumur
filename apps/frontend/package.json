@@ -26,7 +26,8 @@
     "isbot": "catalog:",
     "nanoid": "catalog:",
     "react": "catalog:",
-    "react-dom": "catalog:"
+    "react-dom": "catalog:",
+    "uuid": "^11.0.5"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "catalog:",
@@ -35,6 +36,7 @@
     "@straumur/types": "workspace:*",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
+    "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "catalog:",
     "@typescript-eslint/parser": "catalog:",
     "autoprefixer": "catalog:",

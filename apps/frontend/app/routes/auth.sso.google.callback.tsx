@@ -1,5 +1,6 @@
 import { LoaderFunctionArgs, redirect } from "@remix-run/cloudflare";
 import { OAuth2Client } from "google-auth-library";
+import { v7 as uuid } from "uuid";
 
 export async function loader({ context, request }: LoaderFunctionArgs) {
     const params = new URL(request.url).searchParams;
@@ -27,18 +28,74 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
 
     const ssoUser = payload.getPayload();
 
-    if (!ssoUser)
+    if (!ssoUser || !ssoUser.email || !ssoUser.given_name)
         throw Error("Failed to get user information from token.");
 
-    const user = {
-        name: ssoUser.name,
-        email: ssoUser.email,
-        google_sub: ssoUser.sub
-    };
+    const db = context.cloudflare.env.DB;
 
-    console.log(user);
+    const identity = await getSsoIdentity(db, "google", ssoUser.sub);
+
+    if (!identity) {
+        // User does not exist currently
+        const user: UserWithSsoIdentity = {
+            id: uuid(),
+            first_name: ssoUser.given_name,
+            name: ssoUser.name,
+            email: ssoUser.email,
+            ssoProvider: "google",
+            ssoId: ssoUser.sub
+        };
+
+        await insertUser(db, user);
+    } else {
+        // Find user and create session
+        console.log(await getUser(db, identity));
+    }
 
     return redirect("/feed");
+}
+
+type SsoProvider = "google";
+
+type SsoIdentity = {
+    provider: SsoProvider;
+    id: string;
+    user_id: string;
+};
+
+type User = {
+    id: string;
+    first_name: string;
+    name?: string;
+    email: string;
+}
+
+type UserWithSsoIdentity = User & { ssoProvider: SsoProvider; ssoId: string; };
+
+async function getSsoIdentity(db: D1Database, provider: SsoProvider, id: string): Promise<SsoIdentity | null> {
+    return await db
+        .prepare("select * from sso_identities where provider = ? and id = ?")
+        .bind(provider, id)
+        .first<SsoIdentity>();
+}
+
+async function insertUser(db: D1Database, request: UserWithSsoIdentity) {
+    const userQuery = db
+        .prepare("insert into users (id, first_name, name, email) values (?, ?, ?, ?)")
+        .bind(request.id, request.first_name, request.name, request.email);
+
+    const identityQuery = db
+        .prepare("insert into sso_identities (provider, id, user_id) values (?, ?, ?)")
+        .bind(request.ssoProvider, request.ssoId, request.id);
+
+    await db.batch([userQuery, identityQuery]);
+}
+
+async function getUser(db: D1Database, identity: SsoIdentity): Promise<User | null> {
+    return await db
+        .prepare("select * from users where id = ?")
+        .bind(identity.user_id)
+        .first<User>();
 }
 
 export default function GoogleCallback() {
