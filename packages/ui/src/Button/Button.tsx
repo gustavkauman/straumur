@@ -5,17 +5,12 @@ export interface ButtonProps {
   children: React.ReactNode;
 }
 
-export function Button(
-  {
-    to,
-    children
-  }: ButtonProps
-) {
+export function Button({ to, children }: ButtonProps) {
   return (
     <Link
       to={to}
     >
-      {children}
+        {children}
     </Link>
   );
 }

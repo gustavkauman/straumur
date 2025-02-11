@@ -39,7 +39,11 @@ export default function Index() {
                   </h2>
               </header>
               <div>
-                <Button to={authUrl}>Login with Google</Button>
+                <Button to={authUrl}>
+                    <div className="flex items-center py-4 px-12 bg-gray-700 hover:bg-gray-800 transition rounded-lg">
+                        Continue with Google
+                    </div>
+                </Button>
               </div>
           </div>
       </div>
