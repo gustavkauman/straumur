@@ -12,7 +12,7 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
     const client = new OAuth2Client({
         clientId: context.cloudflare.env.GOOGLE_CLIENT_ID,
         clientSecret: context.cloudflare.env.GOOGLE_CLIENT_SECRET,
-        redirectUri: "http://localhost:5173/auth/sso/google/callback"
+        redirectUri: `${context.cloudflare.env.BASE_URL}/auth/sso/google/callback`
     });
 
     const { tokens } = await client.getToken(code);

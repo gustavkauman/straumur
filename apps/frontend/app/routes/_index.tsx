@@ -13,7 +13,7 @@ export const meta: MetaFunction = () => {
 export async function loader({ context }: LoaderFunctionArgs) {
     const oauthClient = new OAuth2Client({
         clientId: context.cloudflare.env.GOOGLE_CLIENT_ID,
-        redirectUri: "http://localhost:5173/auth/sso/google/callback"
+        redirectUri: `${context.cloudflare.env.BASE_URL}/auth/sso/google/callback`
     });
 
     const url = oauthClient.generateAuthUrl({

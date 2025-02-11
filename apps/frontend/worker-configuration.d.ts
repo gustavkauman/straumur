@@ -6,5 +6,6 @@ interface Env {
 	SENTRY_ENVIRONMENT: string;
 	SENTRY_ENABLED: string;
 	GOOGLE_CLIENT_SECRET: string;
+	BASE_URL: string;
 	DB: D1Database;
 }
