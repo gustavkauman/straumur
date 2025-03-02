@@ -17,13 +17,13 @@ export const links: LinksFunction = () => [
   },
 ];
 
-export const loader = ({ context } : LoaderFunctionArgs) => {
+export const loader = async ({ context } : LoaderFunctionArgs) => {
     return json({
         ENV: {
             SENTRY_DSN: context.cloudflare.env.SENTRY_DSN,
             SENTRY_ENABLED: context.cloudflare.env.SENTRY_ENABLED,
             SENTRY_ENVIRONMENT: context.cloudflare.env.SENTRY_ENVIRONMENT,
-        }
+        },
     });
 }
 
@@ -77,7 +77,9 @@ export const ErrorBoundary = () => {
 };
 
 function App() {
-    return <Outlet />;
+    return (
+        <Outlet />
+    );
 }
 
 export default withSentry(App);

@@ -1,8 +1,11 @@
 import { json, Link, useLoaderData } from "@remix-run/react";
 import type { Feed ,Article } from "@straumur/types";
 import { LoaderFunctionArgs } from "@remix-run/cloudflare";
+import { getUserIdFromSession } from "~/sessions";
 
-export const loader = async ({ context }: LoaderFunctionArgs) => {
+export const loader = async ({ context, request }: LoaderFunctionArgs) => {
+    const userId = await getUserIdFromSession(context, request);
+
     const db = context.cloudflare.env.DB;
 
     const getFeeds = async (): Promise<Feed[]> => {

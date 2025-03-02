@@ -1,8 +1,14 @@
-import { LoaderFunctionArgs, redirect } from "@remix-run/cloudflare";
+import { ActionFunctionArgs, redirect } from "@remix-run/cloudflare";
 import { OAuth2Client } from "google-auth-library";
 import { v7 as uuid } from "uuid";
+import { createUserSession, getUserIdFromSession } from "~/sessions";
 
-export async function loader({ context, request }: LoaderFunctionArgs) {
+export async function loader({ context, request }: ActionFunctionArgs) {
+    const userId = await getUserIdFromSession(context, request);
+
+    if (userId && userId !== "")
+        return redirect("/feed");
+
     const params = new URL(request.url).searchParams;
     const code = params.get("code");
 
@@ -35,24 +41,40 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
 
     const identity = await getSsoIdentity(db, "google", ssoUser.sub);
 
+    let user: User | null = null;
+
     if (!identity) {
-        // User does not exist currently
-        const user: UserWithSsoIdentity = {
+        user = {
             id: uuid(),
             first_name: ssoUser.given_name,
             name: ssoUser.name,
             email: ssoUser.email,
+        };
+
+        // User does not exist currently
+        const userWithSso: UserWithSsoIdentity = {
+            ...user,
             ssoProvider: "google",
             ssoId: ssoUser.sub
         };
 
-        await insertUser(db, user);
+        await insertUser(db, userWithSso);
     } else {
         // Find user and create session
-        console.log(await getUser(db, identity));
+        user = await getUser(db, identity);
+    }
+    
+    if (!user) {
+        throw new Error("Required to have user object");
     }
 
-    return redirect("/feed");
+    const session = await createUserSession(context, request, user.id);
+
+    return redirect("/feed", {
+        headers: {
+            "Set-Cookie": session
+        }
+    });
 }
 
 type SsoProvider = "google";

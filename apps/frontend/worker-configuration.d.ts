@@ -2,6 +2,7 @@
 
 interface Env {
 	GOOGLE_CLIENT_ID: "706944365506-45j0lthq4dc27i4jr05lplp6npdrrllj.apps.googleusercontent.com";
+	SESSION_SECRET: "";
 	SENTRY_DSN: string;
 	SENTRY_ENVIRONMENT: string;
 	SENTRY_ENABLED: string;
