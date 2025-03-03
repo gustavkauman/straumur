@@ -1,5 +1,5 @@
 import {  createSession, createSessionStorage } from "@remix-run/cloudflare";
-import type { AppLoadContext, SessionStorage  } from "@remix-run/cloudflare";
+import type { AppLoadContext, Session, SessionStorage  } from "@remix-run/cloudflare";
 import { v4 as uuid } from "uuid";
 
 let sessionStorage: SessionStorage<SessionData> | undefined;
@@ -65,9 +65,19 @@ export async function getUserIdFromSession(ctx: AppLoadContext, req: Request): P
     return session.data.userId;
 }
 
+export async function getSession(ctx: AppLoadContext, req: Request): Promise<Session | undefined> {
+    return await getSessionStorage(ctx).getSession(req.headers.get("Cookie"));
+}
+
 export async function createUserSession(ctx: AppLoadContext, request: Request, userId: string): Promise<string> {
     const session = createSession({ userId });
     return await getSessionStorage(ctx).commitSession(session);
+}
+
+export async function destroyUserSession(ctx: AppLoadContext, req: Request): Promise<string | undefined> {
+    const session = await getSession(ctx, req);
+    if (!session) return;
+    return await getSessionStorage(ctx).destroySession(session);
 }
 
 function getSessionStorage(ctx: AppLoadContext) {

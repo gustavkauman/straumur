@@ -1,7 +1,8 @@
-import { json, type LoaderFunctionArgs, type MetaFunction } from "@remix-run/cloudflare";
+import { json, redirect, type LoaderFunctionArgs, type MetaFunction } from "@remix-run/cloudflare";
 import { useLoaderData } from "@remix-run/react";
 import { Button } from "@straumur/ui";
 import { OAuth2Client } from "google-auth-library";
+import { getUserIdFromSession } from "~/sessions";
 
 export const meta: MetaFunction = () => {
   return [
@@ -10,7 +11,13 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export async function loader({ context }: LoaderFunctionArgs) {
+export async function loader({ context, request }: LoaderFunctionArgs) {
+    const userId = await getUserIdFromSession(context, request);
+
+    if (userId && userId !== "") {
+        return redirect("/feed");
+    }
+
     const oauthClient = new OAuth2Client({
         clientId: context.cloudflare.env.GOOGLE_CLIENT_ID,
         redirectUri: `${context.cloudflare.env.BASE_URL}/auth/sso/google/callback`

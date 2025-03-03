@@ -2,6 +2,7 @@ import { json, Link, useLoaderData } from "@remix-run/react";
 import type { Feed ,Article } from "@straumur/types";
 import { LoaderFunctionArgs } from "@remix-run/cloudflare";
 import { getUserIdFromSession } from "~/sessions";
+import { Button } from "@straumur/ui";
 
 export const loader = async ({ context, request }: LoaderFunctionArgs) => {
     const userId = await getUserIdFromSession(context, request);
@@ -44,7 +45,7 @@ export default function Feed() {
                 px-4 text-end border-b border-slate-50/[0.06]
             ">
                 <div className="flex justify-end w-[80%]">
-                    <p>Howdy, user!</p>
+                    <Button to={"/auth/logout"}>Howdy, user!</Button>
                 </div>
             </div>
             <div className="w-[90rem] mx-auto mt-[3rem] px-8">

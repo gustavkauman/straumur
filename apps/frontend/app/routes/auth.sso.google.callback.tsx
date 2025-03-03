@@ -1,9 +1,9 @@
-import { ActionFunctionArgs, redirect } from "@remix-run/cloudflare";
+import { LoaderFunctionArgs, redirect } from "@remix-run/cloudflare";
 import { OAuth2Client } from "google-auth-library";
 import { v7 as uuid } from "uuid";
 import { createUserSession, getUserIdFromSession } from "~/sessions";
 
-export async function loader({ context, request }: ActionFunctionArgs) {
+export async function loader({ context, request }: LoaderFunctionArgs) {
     const userId = await getUserIdFromSession(context, request);
 
     if (userId && userId !== "")
