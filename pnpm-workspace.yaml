@@ -4,7 +4,7 @@ packages:
 
 catalog:
   '@cloudflare/vitest-pool-workers': '^0.6.4'
-  '@cloudflare/workers-types': '^4.20250121.0'
+  '@cloudflare/workers-types': '^4.20250525.0'
   '@remix-run/cloudflare': '^2.14.0'
   '@remix-run/cloudflare-pages': '^2.14.0'
   '@remix-run/react': '^2.14.0'
@@ -35,4 +35,4 @@ catalog:
   'vite': '^5.1.0'
   'vitest': '2.1.8'
   'vite-tsconfig-paths': '^4.2.1'
-  'wrangler': '3.107.3'
+  'wrangler': '^4'

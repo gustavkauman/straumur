@@ -10,7 +10,10 @@ export const loader = async ({ context, request }: LoaderFunctionArgs) => {
     const db = context.cloudflare.env.DB;
 
     const getFeeds = async (): Promise<Feed[]> => {
-        const { results: feeds } = await db.prepare("select * from feeds order by name asc").all<Feed>();
+        const { results: feeds } = await db
+            .prepare("select * from feeds where user_id = ? order by name asc")
+            .bind(userId)
+            .all<Feed>();
         return feeds;
     };
 
@@ -22,7 +25,9 @@ export const loader = async ({ context, request }: LoaderFunctionArgs) => {
 select a.*, f.name as feed_name, f.favicon_url
 from articles a
 left join feeds f on a.feed_id = f.id
+where f.user_id = ?
 order by published_at asc`)
+            .bind(userId)
             .all<ArticleWithAdditionalData>();
         return articles;
     }
