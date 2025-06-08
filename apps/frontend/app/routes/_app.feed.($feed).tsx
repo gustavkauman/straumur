@@ -55,9 +55,9 @@ export default function Feed() {
     const { feeds, articles } = useLoaderData<typeof loader>();
 
     return (
-        <div className="flex flex-col max-h-screen">
-            <div className="w-[90rem] mx-auto px-16">
-                <div className="w-[17rem] justify-center fixed block border-r border-slate-50/[0.06] h-screen">
+        <div className="flex flex-col min-h-screen">
+            <div className="w-360 mx-auto px-16">
+                <div className="w-68 justify-center fixed block border-r border-slate-50/[0.06] h-screen">
                     <div className="mt-8">
                         <p className="font-bold mb-2">Feeds</p>
                         <div className="ml-4">
@@ -69,7 +69,7 @@ export default function Feed() {
                         </div>
                     </div>
                 </div>
-                <div className="ml-[17.5rem] pl-[2rem]">
+                <div className="ml-70 pl-8">
                     {
                         articles.map((article) => (
                             <div key={article.id} className="flex items-center h-[45px] my-4">

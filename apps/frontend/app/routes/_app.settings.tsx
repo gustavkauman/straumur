@@ -1,8 +1,10 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
-import { Form, useLoaderData, useNavigation } from "@remix-run/react";
+import { Form, useActionData, useLoaderData, useNavigation } from "@remix-run/react";
 import { Feed } from "@straumur/types";
-import { useState } from "react";
+import { Trash } from "lucide-react";
+import { useEffect, useRef } from "react";
+import { Button } from "~/components/ui/button";
 import { getUserIdFromSession } from "~/sessions";
 
 export async function loader({ context, request }: LoaderFunctionArgs) {
@@ -47,9 +49,9 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
     return json({ feeds, user });
 }
 
-/*
-export async function action({ context, request, params }: ActionFunctionArgs) {
-    const userId = getUserIdFromSession(context, request);
+export async function action({ context, request }: ActionFunctionArgs) {
+    const userId = await getUserIdFromSession(context, request);
+    const db = context.cloudflare.env.DB;
 
     if (!userId) {
         throw new Response("Not authorized", { status: 401 });
@@ -58,95 +60,200 @@ export async function action({ context, request, params }: ActionFunctionArgs) {
     const formData = await request.formData();
     const intent = formData.get("intent");
 
-    if (intent === "update-name") {
-        const name = formData.get("name");
+    switch (intent) {
+        case "delete-feed": {
+            const feedId = formData.get("feedId");
 
-        if (typeof name !== "string" || name.length === 0) {
-            return json(
-                { errors: { name: "Name is required" } },
-                { status: 400 }
-            );
+            if (typeof feedId !== "string") {
+                return json(
+                    { errors: { feed: "Feed ID is required" } },
+                    { status: 400 }
+                );
+            }
+
+            await db.prepare("delete from feeds where id = ? and user_id = ?")
+            .bind(feedId, userId)
+            .run();
+
+
+            return json({ success: true });
+        };
+        case "add-feed": {
+            const name = formData.get("name");
+            const url = formData.get("url");
+               
+            const errors: { name?: string; url?: string; form?: string } = {};
+
+            if (!name || typeof name !== "string" || name.length === 0) {
+                errors.name = "Feed name is required";
+            }
+
+            if (!url || typeof url !== "string" || url.length === 0) {
+                errors.url = "Feed URL is required";
+            } else if (!isValidUrl(url)) {
+                errors.url = "Please enter a valid URL";
+            }
+
+            if (Object.keys(errors).length > 0) {
+                return json({ errors }, { status: 400 });
+            }
+
+            const parsedUrl = new URL(String(url));
+            const faviconUrl = `https://${parsedUrl.hostname}/favicon.ico`;
+
+            const feed = await db
+                .prepare("select id from feeds where url = ? and user_id = ? limit 1")
+                .bind(parsedUrl.toString(), userId)
+                .run();
+
+            if (feed.results.length > 0) {
+                return json({ success: true });
+            }
+            
+            await db
+                .prepare("insert into feeds (name, url, favicon_url, user_id) values (?, ?, ?, ?)")
+                .bind(name, parsedUrl.toString(), faviconUrl, userId)
+                .run();
+
+            return json({ success: true });
         }
-
-        await db.user.update({
-            where: { id: userId },
-            data: { name },
-        });
-
-        return json({ success: true });
-    }
-
-    if (intent === "delete-feed") {
-        const feedId = formData.get("feedId");
-
-        if (typeof feedId !== "string") {
-            return json(
-                { errors: { feed: "Feed ID is required" } },
-                { status: 400 }
-            );
-        }
-
-        await db.feed.delete({
-            where: { id: feedId },
-        });
-
-        return json({ success: true });
     }
 
     return json({ errors: { form: "Invalid intent" } }, { status: 400 });
 }
-*/
+
+function isValidUrl(string: string): boolean {
+    try {
+        const url = new URL(string);
+        return url.protocol === "http:" || url.protocol === "https:";
+    } catch (_) {
+        return false;
+    }
+}
 
 export default function AdminUserPage() {
-  const { feeds } = useLoaderData<typeof loader>();
-  const navigation = useNavigation();
-  // const [editingName, setEditingName] = useState(false);
-  const isSubmitting = navigation.state === "submitting";
+    const { feeds } = useLoaderData<typeof loader>();
+    const navigation = useNavigation();
+    const isSubmitting = navigation.state === "submitting";
+    const actionData = useActionData<{ errors?: { name?: string; url?: string; form?: string } }>();
+    const formRef = useRef<HTMLFormElement>(null);
+
+    // Reset form on successful submission
+    useEffect(() => {
+        if (navigation.state === "idle" && !actionData?.errors) {
+            formRef.current?.reset();
+        }
+    }, [navigation.state, actionData]);
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <h1 className="text-3xl font-bold mb-8">User Management</h1>
-          <div className="rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-semibold mb-4">
-                  User Feeds ({feeds.length})
-              </h2>
+      <div className="rounded-lg shadow-md p-6">
+        <h2 className="text-xl font-semibold mb-4">
+            Your Feeds ({feeds.length})
+        </h2>
 
-              {feeds.length === 0 ? (
-                  <p>You currently don't have any feeds.</p>
-              ) : (
-              <div className="space-y-4">
-              {feeds.map((feed) => (
-                  <div
-                      key={feed.id}
-                      className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50"
-                  >
-                  <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                          <h3 className="font-medium text-gray-900">{feed.name}</h3>
-                          <p className="text-sm text-gray-600 mt-1">{feed.url}</p>
-                      </div>
-                      <Form method="post" className="ml-4">
-                          <input type="hidden" name="intent" value="delete-feed" />
-                          <input type="hidden" name="feedId" value={feed.id} />
-                          <button
-                              type="submit"
-                              disabled={isSubmitting}
-                              className="text-red-600 hover:text-red-700 text-sm disabled:opacity-50"
-                              onClick={(e) => {
-                                  if (!confirm("Are you sure you want to delete this feed?")) {
-                                      e.preventDefault();
-                                  }
-                              }}
-                          >
-                              Delete
-                          </button>
-                      </Form>
-                      </div>
-                  </div>
-              ))}
+        {feeds.length === 0 ? (
+          <p>You don't currently have any feeds.</p>
+        ) : (
+        <div className="space-y-4">
+        {feeds.map((feed) => (
+          <div
+              key={feed.id}
+              className="border border-gray-200 rounded-lg p-4"
+          >
+          <div className="flex justify-between items-center">
+              <div className="flex-1">
+                  <h3 className="font-medium">{feed.name}</h3>
+                  <p className="text-sm text-gray-600 mt-1">{feed.url}</p>
               </div>
-          )}
+              <Form method="post" className="ml-4">
+                  <input type="hidden" name="intent" value="delete-feed" />
+                  <input type="hidden" name="feedId" value={feed.id} />
+                  <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="text-red-600 hover:text-red-700 hover:cursor-pointer text-sm disabled:opacity-50"
+                      onClick={(e) => {
+                          if (!confirm("Are you sure you want to delete this feed?")) {
+                              e.preventDefault();
+                          }
+                      }}
+                  >
+                    <Trash />
+                  </button>
+              </Form>
+              </div>
+          </div>
+        ))}
         </div>
+        )}
+
+        <div className="mt-8 border border-gray-200 rounded-lg p-4">
+            <h2 className="text-xl font-semibold mb-4">
+                Add new feed
+            </h2>
+
+            <Form method="post" ref={formRef} className="space-y-4">
+                <input type="hidden" name="intent" value="add-feed" />
+
+                <div>
+                    <label htmlFor="feed-name" className="block text-sm font-medium text-gray-700">
+                        Feed Name
+                    </label>
+                    <input
+                        id="feed-name"
+                        name="name"
+                        type="text"
+                        required
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                        placeholder="e.g., TechCrunch"
+                        aria-invalid={actionData?.errors?.name ? true : undefined}
+                        aria-describedby="name-error"
+                    />
+                    {actionData?.errors?.name && (
+                        <p className="mt-1 text-sm text-red-600" id="name-error">
+                            {actionData.errors.name}
+                        </p>
+                    )}
+                </div>
+
+                <div>
+                    <label htmlFor="feed-url" className="block text-sm font-medium text-gray-700">
+                        Feed URL
+                    </label>
+                    <input
+                        id="feed-url"
+                        name="url"
+                        type="url"
+                        required
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-0"
+                        placeholder="https://example.com/feed.xml"
+                        aria-invalid={actionData?.errors?.url ? true : undefined}
+                        aria-describedby="url-error"
+                    />
+                    {actionData?.errors?.url && (
+                        <p className="mt-1 text-sm text-red-600" id="url-error">
+                            {actionData.errors.url}
+                        </p>
+                    )}
+                </div>
+
+                {actionData?.errors?.form && (
+                    <div className="rounded-md bg-red-50 p-4">
+                    <p className="text-sm text-red-800">{actionData.errors.form}</p>
+                    </div>
+                )}
+
+                <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="hover:cursor-pointer"
+                >
+                    {isSubmitting ? "Adding Feed..." : "Add Feed"}
+                </Button>
+            </Form>
+        </div>
+    </div>
     </div>
   );
 }

@@ -1,8 +1,10 @@
 import { captureRemixErrorBoundaryError, withSentry, SentryMetaArgs } from "@sentry/remix";
 import type { LinksFunction, LoaderFunctionArgs, MetaFunction } from "@remix-run/cloudflare";
-import { json, Links, Meta, Outlet, Scripts, ScrollRestoration, useRouteError, useRouteLoaderData } from "@remix-run/react";
+import { ClientLoaderFunctionArgs, json, Links, Meta, Outlet, Scripts, ScrollRestoration, useRouteError, useRouteLoaderData } from "@remix-run/react";
+import { PreventFlashOnWrongTheme, ThemeProvider, createThemeSessionResolver } from "remix-themes"
 
 import "./tailwind.css";
+import { createThemeSessionStorageFromCtx } from "./sessions";
 
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -17,8 +19,12 @@ export const links: LinksFunction = () => [
   },
 ];
 
-export const loader = async ({ context } : LoaderFunctionArgs) => {
+export const loader = async ({ context, request } : LoaderFunctionArgs) => {
+    const themeResolver = createThemeSessionResolver(createThemeSessionStorageFromCtx(context));
+    const { getTheme } = await themeResolver(request);
+
     return json({
+        theme: getTheme(),
         ENV: {
             SENTRY_DSN: context.cloudflare.env.SENTRY_DSN,
             SENTRY_ENABLED: context.cloudflare.env.SENTRY_ENABLED,
@@ -47,11 +53,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
     const data = useRouteLoaderData<typeof loader>("root");
 
     return (
-        <html lang="en">
+        <ThemeProvider specifiedTheme={data?.theme ?? null} themeAction="/action/set-theme">
+        <html lang="en" className={data?.theme ?? ""}>
             <head>
                 <meta charSet="utf-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <Meta />
+                <PreventFlashOnWrongTheme ssrTheme={Boolean(data?.theme)} />
                 <Links />
             </head>
             <body>
@@ -67,7 +75,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <Scripts />
             </body>
         </html>
+        </ThemeProvider>
     );
+}
+
+export const clientLoader = async ({ serverLoader }: ClientLoaderFunctionArgs) => {
+  return await serverLoader()
 }
 
 export const ErrorBoundary = () => {

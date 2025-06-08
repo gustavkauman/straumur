@@ -1,4 +1,4 @@
-import {  createSession, createSessionStorage } from "@remix-run/cloudflare";
+import {  createCookieSessionStorage, createSession, createSessionStorage } from "@remix-run/cloudflare";
 import type { AppLoadContext, Session, SessionStorage  } from "@remix-run/cloudflare";
 import { v4 as uuid } from "uuid";
 
@@ -41,6 +41,23 @@ function createDatabaseSessionStorage({
             await db.prepare("delete from user_sessions where id = ?")
                     .bind(id)
                     .run();
+        },
+    });
+}
+
+export function createThemeSessionStorageFromCtx(ctx: AppLoadContext) {
+    const isProduction = process.env.NODE_ENV === "production";
+    return createCookieSessionStorage({
+        cookie: {
+            name: "theme",
+            path: "/",
+            httpOnly: true,
+            sameSite: "lax",
+            secrets: [ctx.cloudflare.env.SESSION_SECRET],
+            // Set domain and secure only if in production
+            ...(isProduction
+                ? { domain: "straumur.app", secure: true }
+                : {}),
         },
     });
 }
