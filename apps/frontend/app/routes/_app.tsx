@@ -26,7 +26,7 @@ export default function AppLayout() {
     return (
         <>
             <TopBar username={username} />
-            <main>
+            <main className="mt-[3rem]">
                 <Outlet />
             </main>
         </>

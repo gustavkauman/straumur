@@ -56,7 +56,7 @@ export default function Feed() {
 
     return (
         <div className="flex flex-col max-h-screen">
-            <div className="w-[90rem] mx-auto mt-[3rem] px-16">
+            <div className="w-[90rem] mx-auto px-16">
                 <div className="w-[17rem] justify-center fixed block border-r border-slate-50/[0.06] h-screen">
                     <div className="mt-8">
                         <p className="font-bold mb-2">Feeds</p>
