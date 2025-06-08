@@ -56,11 +56,8 @@ export default function Feed() {
 
     return (
         <div className="flex flex-col max-h-screen">
-            <div className="w-[90rem] mx-auto mt-[3rem] px-8">
-                <div className="w-[17rem] px-4 justify-center fixed block p-4 border-r border-slate-50/[0.06] h-screen">
-                    <div className="font-bold text-lg">
-                        <Link to={'/feed'}><h1>Straumur</h1></Link>
-                    </div>
+            <div className="w-[90rem] mx-auto mt-[3rem] px-16">
+                <div className="w-[17rem] justify-center fixed block border-r border-slate-50/[0.06] h-screen">
                     <div className="mt-8">
                         <p className="font-bold mb-2">Feeds</p>
                         <div className="ml-4">
