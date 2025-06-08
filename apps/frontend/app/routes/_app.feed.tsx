@@ -2,10 +2,13 @@ import { json, Link, useLoaderData } from "@remix-run/react";
 import type { Feed ,Article } from "@straumur/types";
 import { LoaderFunctionArgs } from "@remix-run/cloudflare";
 import { getUserIdFromSession } from "~/sessions";
-import { Button } from "@straumur/ui";
 
 export const loader = async ({ context, request }: LoaderFunctionArgs) => {
     const userId = await getUserIdFromSession(context, request);
+
+    if (!userId) {
+        throw new Response("Not authorized", { status: 401 });
+    }
 
     const db = context.cloudflare.env.DB;
 
@@ -45,14 +48,6 @@ export default function Feed() {
 
     return (
         <div className="flex flex-col max-h-screen">
-            <div className="
-                flex fixed top-0 z-40 w-full h-[3rem] dark:bg-gray-950 align-middle justify-center leading-[3rem]
-                px-4 text-end border-b border-slate-50/[0.06]
-            ">
-                <div className="flex justify-end w-[80%]">
-                    <Button to={"/auth/logout"}>Howdy, user!</Button>
-                </div>
-            </div>
             <div className="w-[90rem] mx-auto mt-[3rem] px-8">
                 <div className="w-[17rem] px-4 justify-center fixed block p-4 border-r border-slate-50/[0.06] h-screen">
                     <div className="font-bold text-lg">
