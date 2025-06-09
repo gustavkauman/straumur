@@ -27,7 +27,6 @@
     "@tailwindcss/postcss": "^4.1.8",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "google-auth-library": "^9.15.1",
     "isbot": "catalog:",
     "lucide-react": "^0.513.0",
     "nanoid": "catalog:",

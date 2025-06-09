@@ -1,7 +1,6 @@
 import { json, redirect, type LoaderFunctionArgs, type MetaFunction } from "@remix-run/cloudflare";
 import { useLoaderData } from "@remix-run/react";
-import { Button } from "@straumur/ui";
-import { OAuth2Client } from "google-auth-library";
+import { Button } from "~/components/ui/button";
 import { getUserIdFromSession } from "~/sessions";
 
 export const meta: MetaFunction = () => {
@@ -11,6 +10,19 @@ export const meta: MetaFunction = () => {
   ];
 };
 
+function generateGoogleAuthUrl(clientId: string, redirectUri: string): string {
+    const params = new URLSearchParams({
+        client_id: clientId,
+        redirect_uri: redirectUri,
+        response_type: 'code',
+        scope: 'openid email profile',
+        access_type: 'offline',
+        prompt: 'select_account',
+    });
+
+    return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
+}
+
 export async function loader({ context, request }: LoaderFunctionArgs) {
     const userId = await getUserIdFromSession(context, request);
 
@@ -18,15 +30,8 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
         return redirect("/feed");
     }
 
-    const oauthClient = new OAuth2Client({
-        clientId: context.cloudflare.env.GOOGLE_CLIENT_ID,
-        redirectUri: `${context.cloudflare.env.BASE_URL}/auth/sso/google/callback`
-    });
-
-    const url = oauthClient.generateAuthUrl({
-        access_type: "offline",
-        scope: ["openid", "email", "profile"]
-    });
+    const redirectUri = `${context.cloudflare.env.BASE_URL}/auth/sso/google/callback`;
+    const url = generateGoogleAuthUrl(context.cloudflare.env.GOOGLE_CLIENT_ID, redirectUri);
 
     return json({ authUrl: url });
 }
@@ -35,7 +40,7 @@ export default function Index() {
     const { authUrl } = useLoaderData<typeof loader>();
 
     return (
-      <div className="flex h-screen items-center justify-center">
+        <div className="flex h-screen items-center justify-center">
           <div className="flex flex-col items-center gap-16">
               <header className="flex flex-col items-center gap-2">
                   <h1 className="leading text-4xl font-bold text-gray-800 dark:text-gray-100">
@@ -46,13 +51,13 @@ export default function Index() {
                   </h2>
               </header>
               <div>
-                <Button to={authUrl}>
-                    <div className="flex items-center py-4 px-12 bg-gray-700 hover:bg-gray-800 transition rounded-lg">
-                        Continue with Google
-                    </div>
-                </Button>
+                  <a href={authUrl}>
+                    <Button type="button" className="hover:cursor-pointer">
+                        <div>Continue with Google</div>
+                    </Button>
+                  </a>
               </div>
           </div>
-      </div>
+        </div>
   );
 }
