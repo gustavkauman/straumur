@@ -23,6 +23,7 @@ export default function TopBar({ username }: TopBarProps) {
                         <UserMenu
                             username={username} 
                             onNavigateToSettings={() => navigate("/settings")}
+                            onLogout={() => navigate("/auth/logout")}
                         />
                         <ThemeSelector />
                     </ClientOnly>

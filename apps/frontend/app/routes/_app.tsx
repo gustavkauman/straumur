@@ -1,10 +1,14 @@
-import { json, LoaderFunctionArgs } from "@remix-run/cloudflare";
+import { json, LoaderFunctionArgs, redirect } from "@remix-run/cloudflare";
 import { Outlet, useLoaderData } from "@remix-run/react";
 import TopBar from "~/components/TopBar";
 import { getUserIdFromSession } from "~/sessions";
 
 export const loader = async ({ context, request }: LoaderFunctionArgs) => {
     const userId = await getUserIdFromSession(context, request);
+
+    if (!userId) {
+        return redirect("/");
+    }
 
     const db = context.cloudflare.env.DB;
 
