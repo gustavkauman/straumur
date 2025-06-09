@@ -6,9 +6,11 @@ pages_build_output_dir = "./build/client"
 
 [vars]
 GOOGLE_CLIENT_ID="706944365506-45j0lthq4dc27i4jr05lplp6npdrrllj.apps.googleusercontent.com"
-GOOGLE_CLIENT_SECRET=""
-BASE_URL="https://straumur.app"
-SESSION_SECRET=""
+BASE_URL="http://localhost:5173"
+USER_SIGNUP_ENABLED=true
+SENTRY_ENABLED=false
+SENTRY_ENVIRONMENT="development"
+SENTRY_DSN="https://5a7f1f1ec0ea04cd31ca97fd9b723ca3@o4508321047904256.ingest.de.sentry.io/4508348171681872"
 
 [[d1_databases]]
 binding = "DB"
@@ -16,11 +18,17 @@ database_name = "straumur"
 database_id = "57f4b23e-60cf-4f9f-9e82-1bdf41471533"
 migrations_dir = "./../../migrations/"
 
-[env.production]
-
-[[d1_databases]]
+[[env.production.d1_databases]]
 binding = "DB"
 database_name = "straumur-prod"
 database_id = "9b1ad939-65c1-4d85-aa57-3598c960f0ef"
+migrations_dir = "./../../migrations/"
 
+[env.production.vars]
+GOOGLE_CLIENT_ID="706944365506-45j0lthq4dc27i4jr05lplp6npdrrllj.apps.googleusercontent.com"
+BASE_URL="https://straumur.app"
+USER_SIGNUP_ENABLED=true
+SENTRY_ENABLED=true
+SENTRY_ENVIRONMENT="production"
+SENTRY_DSN="https://5a7f1f1ec0ea04cd31ca97fd9b723ca3@o4508321047904256.ingest.de.sentry.io/4508348171681872"
 
