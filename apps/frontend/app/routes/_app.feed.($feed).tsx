@@ -82,9 +82,10 @@ export default function Feed() {
                                     <Link
                                         to={article.url}
                                         className="text-lg"
-                                    >
-                                        {article.title}
-                                    </Link>
+                                        dangerouslySetInnerHTML={{
+                                            __html: article.title
+                                        }}
+                                    / >
                                     <p className="text-xs">{article.author}</p>
                                 </div>
                             </div>
