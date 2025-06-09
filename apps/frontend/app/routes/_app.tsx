@@ -30,8 +30,8 @@ export default function AppLayout() {
     return (
         <>
             <TopBar username={username} />
-            <main className="min-h-screen">
-                <div className="top-12 relative">
+            <main>
+                <div className="pt-12">
                     <Outlet />
                 </div>
             </main>

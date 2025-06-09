@@ -13,7 +13,7 @@ export default function TopBar({ username }: TopBarProps) {
 
     return (
         <div className="
-            flex fixed top-0 z-40 w-full h-12 dark:bg-gray-950 align-middle justify-center leading-12
+            flex fixed top-0 z-40 w-full h-12 bg-white dark:bg-gray-950 align-middle justify-center leading-12
             px-4 text-end border-b border-slate-50/[0.06]
         ">
             <div className="flex px-16 w-360 justify-between">

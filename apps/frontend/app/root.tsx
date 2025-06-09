@@ -62,7 +62,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <PreventFlashOnWrongTheme ssrTheme={Boolean(data?.theme)} />
                 <Links />
             </head>
-            <body>
+            <body className="min-h-screen">
                 {children}
                 <script
                     dangerouslySetInnerHTML={{
