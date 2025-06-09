@@ -44,6 +44,10 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
     let user: User | null = null;
 
     if (!identity) {
+        if (!context.cloudflare.env.USER_SIGNUP_ENABLED) {
+            throw new Response("User sign up is not allowed at this time", { status: 404 });
+        }
+
         user = {
             id: uuid(),
             first_name: ssoUser.given_name,

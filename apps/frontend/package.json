@@ -42,6 +42,7 @@
     "@remix-run/dev": "catalog:",
     "@straumur/tsconfig": "workspace:*",
     "@straumur/types": "workspace:*",
+    "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@types/uuid": "^10.0.0",
