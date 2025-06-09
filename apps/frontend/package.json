@@ -35,7 +35,7 @@
     "react-dom": "catalog:",
     "remix-themes": "^2.0.4",
     "tailwind-merge": "^3.3.0",
-    "uuid": "^11.0.5"
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "catalog:",
