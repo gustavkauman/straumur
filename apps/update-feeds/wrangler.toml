@@ -12,3 +12,9 @@ binding = "DB"
 database_name = "straumur"
 database_id = "57f4b23e-60cf-4f9f-9e82-1bdf41471533"
 migrations_dir = "./../../migrations/"
+
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "straumur-prod"
+database_id = "9b1ad939-65c1-4d85-aa57-3598c960f0ef"
+migrations_dir = "./../../migrations/"
