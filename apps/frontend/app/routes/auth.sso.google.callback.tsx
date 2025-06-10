@@ -34,24 +34,24 @@ async function verifyGoogleToken(token: string, clientId: string): Promise<Googl
         `https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=${token}`
     );
 
-        if (!response.ok) {
-            throw new Error('Failed to verify token with Google');
-        }
+    if (!response.ok) {
+        throw new Error('Failed to verify token with Google');
+    }
 
-        const tokenInfo = await response.json() as GoogleTokenInfo;
+    const tokenInfo = await response.json() as GoogleTokenInfo;
 
-        if (tokenInfo.aud !== clientId) {
-            throw new Error('Token audience mismatch');
-        }
+    if (tokenInfo.aud !== clientId) {
+        throw new Error('Token audience mismatch');
+    }
 
-        const now = Math.floor(Date.now() / 1000);
-        if (parseInt(tokenInfo.exp) < now) {
-            throw new Error('Token has expired');
-        }
+    const now = Math.floor(Date.now() / 1000);
+    if (parseInt(tokenInfo.exp) < now) {
+        throw new Error('Token has expired');
+    }
 
-        if (tokenInfo.iss !== 'https://accounts.google.com' && tokenInfo.iss !== 'accounts.google.com') {
-            throw new Error('Invalid token issuer');
-        }
+    if (tokenInfo.iss !== 'https://accounts.google.com' && tokenInfo.iss !== 'accounts.google.com') {
+        throw new Error('Invalid token issuer');
+    }
 
     if (tokenInfo.email_verified !== 'true') {
         throw new Error('Email not verified');
@@ -63,16 +63,16 @@ async function verifyGoogleToken(token: string, clientId: string): Promise<Googl
 async function exchangeCodeForToken(code: string, clientId: string, clientSecret: string, redirectUri: string): Promise<GoogleTokenResponse> {
     const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
         method: 'POST',
-    headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: new URLSearchParams({
-        code,
-        client_id: clientId,
-        client_secret: clientSecret,
-        redirect_uri: redirectUri,
-        grant_type: 'authorization_code',
-    }),
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+            code,
+            client_id: clientId,
+            client_secret: clientSecret,
+            redirect_uri: redirectUri,
+            grant_type: 'authorization_code',
+        }),
     });
 
     if (!tokenResponse.ok) {
