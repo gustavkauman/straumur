@@ -31,7 +31,7 @@ migrations_dir = "./../../migrations/"
 [env.production.vars]
 GOOGLE_CLIENT_ID="706944365506-45j0lthq4dc27i4jr05lplp6npdrrllj.apps.googleusercontent.com"
 BASE_URL="https://straumur.app"
-USER_SIGNUP_ENABLED="true"
+USER_SIGNUP_ENABLED="false"
 SENTRY_ENABLED="true"
 SENTRY_ENVIRONMENT="production"
 SENTRY_DSN="https://5a7f1f1ec0ea04cd31ca97fd9b723ca3@o4508321047904256.ingest.de.sentry.io/4508348171681872"
