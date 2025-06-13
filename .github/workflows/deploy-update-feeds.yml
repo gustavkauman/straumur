@@ -38,3 +38,6 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           command: deploy --env production
+        env:
+          PNPM_IGNORE_WORKSPACE_ROOT_CHECK: true
+
