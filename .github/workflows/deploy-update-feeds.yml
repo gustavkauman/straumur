@@ -11,11 +11,11 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    name: Deploy Update Feeds
+    name: Deploy
     steps:
       - uses: actions/checkout@v4
       - name: Deploy
-        uses: cloudflare/wrangler@v3
+        uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           command: deploy --env production
