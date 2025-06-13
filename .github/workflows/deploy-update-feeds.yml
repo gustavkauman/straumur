@@ -1,0 +1,21 @@
+name: "Deploy Update Feeds"
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+    paths:
+      - 'apps/update-feeds/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy Update Feeds
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy
+        uses: cloudflare/wrangler@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          command: deploy --env production

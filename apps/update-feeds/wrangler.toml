@@ -16,6 +16,10 @@ database_name = "straumur"
 database_id = "57f4b23e-60cf-4f9f-9e82-1bdf41471533"
 migrations_dir = "./../../migrations/"
 
+[env.production]
+name = "straumur-update-feeds-production"
+account_id = "1385af55a620192fb30333115d7f436a"
+
 [[env.production.d1_databases]]
 binding = "DB"
 database_name = "straumur-prod"
