@@ -85,7 +85,7 @@ export default function Feed() {
                                         dangerouslySetInnerHTML={{
                                             __html: article.title
                                         }}
-                                    / >
+                                    />
                                     <p className="text-xs">{article.author}</p>
                                 </div>
                             </div>
