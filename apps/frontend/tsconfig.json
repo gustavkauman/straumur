@@ -1,12 +1,12 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "@straumur/tsconfig/base.json",
-  "include": [ "**/*.ts", "**/*.tsx" ],
+  "include": [ "**/*.ts", "**/*.tsx", ".react-router/types/**/*" ],
   "exclude": [ "node_modules", "build", "public/build" ],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "types": [
-        "@remix-run/cloudflare",
+        "@react-router/cloudflare",
         "vite/client",
         "@cloudflare/workers-types/2023-07-01"
     ],
@@ -27,6 +27,7 @@
       "@/*": ["./app/*"]
     },
     // Vite takes care of building everything, not tsc.
-    "noEmit": true
+    "noEmit": true,
+    "rootDirs": [ ".", "./.react-router/types" ]
   }
 }

@@ -1,9 +1,9 @@
-import { json, LoaderFunctionArgs, redirect } from "@remix-run/cloudflare";
-import { Outlet, useLoaderData } from "@remix-run/react";
 import TopBar from "~/components/TopBar";
 import { getUserIdFromSession } from "~/sessions";
+import { Outlet, redirect, useLoaderData } from "react-router";
+import { Route } from "./+types/_app";
 
-export const loader = async ({ context, request }: LoaderFunctionArgs) => {
+export const loader = async ({ context, request }: Route.LoaderArgs) => {
     const userId = await getUserIdFromSession(context, request);
 
     if (!userId) {
@@ -21,7 +21,7 @@ export const loader = async ({ context, request }: LoaderFunctionArgs) => {
         throw new Error("Failed to get user info from logged in user!");
     }
 
-    return json({ username: username.first_name });
+    return { username: username.first_name };
 }
 
 export default function AppLayout() {

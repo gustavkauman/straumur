@@ -1,10 +1,7 @@
-import { captureRemixErrorBoundaryError, withSentry, SentryMetaArgs } from "@sentry/remix";
-import type { LinksFunction, LoaderFunctionArgs, MetaFunction } from "@remix-run/cloudflare";
-import { ClientLoaderFunctionArgs, json, Links, Meta, Outlet, Scripts, ScrollRestoration, useRouteError, useRouteLoaderData } from "@remix-run/react";
-import { PreventFlashOnWrongTheme, ThemeProvider, createThemeSessionResolver } from "remix-themes"
+import { ClientLoaderFunctionArgs, Links, LinksFunction, Meta, Outlet, Scripts, ScrollRestoration, useRouteError, useRouteLoaderData } from "react-router";
 
 import "./tailwind.css";
-import { createThemeSessionStorageFromCtx } from "./sessions";
+import { Route } from "./+types/root";
 
 export const links: LinksFunction = () => [
     {
@@ -43,45 +40,24 @@ export const links: LinksFunction = () => [
     },
 ];
 
-export const loader = async ({ context, request } : LoaderFunctionArgs) => {
-    const themeResolver = createThemeSessionResolver(createThemeSessionStorageFromCtx(context));
-    const { getTheme } = await themeResolver(request);
-
-    return json({
-        theme: getTheme(),
+export const loader = async ({ context } : Route.LoaderArgs) => {
+    return {
+        theme: "dark",
         ENV: {
             SENTRY_DSN: context.cloudflare.env.SENTRY_DSN,
             SENTRY_ENABLED: context.cloudflare.env.SENTRY_ENABLED,
             SENTRY_ENVIRONMENT: context.cloudflare.env.SENTRY_ENVIRONMENT,
         },
-    });
+    };
 }
 
-export const meta = ({ data } : SentryMetaArgs<MetaFunction<typeof loader>>) => {
+export const meta = () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const metas: any[] = [
         {
             title: "Straumur"
         },
     ];
-
-    if (data.sentryTrace) {
-        metas.push(
-            {
-                name: "sentry-trace",
-                content: data.sentryTrace
-            }
-        );
-    }
-
-    if (data.sentryBaggage) {
-        metas.push(
-            {
-                name: "baggage",
-                content: data.sentryBaggage
-            }
-        );
-    }
 
     return metas;
 }
@@ -90,13 +66,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
     const data = useRouteLoaderData<typeof loader>("root");
 
     return (
-        <ThemeProvider specifiedTheme={data?.theme ?? null} themeAction="/action/set-theme">
         <html lang="en" className={data?.theme ?? ""}>
             <head>
                 <meta charSet="utf-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <Meta />
-                <PreventFlashOnWrongTheme ssrTheme={Boolean(data?.theme)} />
                 <Links />
             </head>
             <body className="min-h-screen">
@@ -112,7 +86,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <Scripts />
             </body>
         </html>
-        </ThemeProvider>
     );
 }
 
@@ -122,7 +95,6 @@ export const clientLoader = async ({ serverLoader }: ClientLoaderFunctionArgs) =
 
 export const ErrorBoundary = () => {
   const error = useRouteError();
-  captureRemixErrorBoundaryError(error);
   return <div>Something went wrong</div>;
 };
 
@@ -132,4 +104,4 @@ function App() {
     );
 }
 
-export default withSentry(App);
+export default App;

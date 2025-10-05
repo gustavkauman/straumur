@@ -1,8 +1,6 @@
-import { Button } from "@straumur/ui";
 import { UserMenu } from "./UserMenu";
-import { ThemeSelector } from "./ThemeSelector";
 import { ClientOnly } from "./ClientOnly";
-import { useNavigate } from "@remix-run/react";
+import { Link, useNavigate } from "react-router";
 
 interface TopBarProps {
     username: string
@@ -17,7 +15,7 @@ export default function TopBar({ username }: TopBarProps) {
             px-4 text-end border-b border-slate-50/[0.06]
         ">
             <div className="flex px-16 w-360 justify-between">
-                <Button to={"/feed"}><h1 className="font-bold">Straumur</h1></Button>
+                <Link to={"/feed"}><h1 className="font-bold">Straumur</h1></Link>
                 <div className="flex items-center">
                     <ClientOnly>
                         <UserMenu
@@ -25,7 +23,6 @@ export default function TopBar({ username }: TopBarProps) {
                             onNavigateToSettings={() => navigate("/settings")}
                             onLogout={() => navigate("/auth/logout")}
                         />
-                        <ThemeSelector />
                     </ClientOnly>
                 </div>
             </div>

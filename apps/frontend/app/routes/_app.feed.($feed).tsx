@@ -1,9 +1,9 @@
-import { json, Link, useLoaderData } from "@remix-run/react";
 import type { Feed ,Article } from "@straumur/types";
-import { LoaderFunctionArgs } from "@remix-run/cloudflare";
 import { getUserIdFromSession } from "~/sessions";
+import { Route } from "./+types/_app.feed.($feed)";
+import { Link, useLoaderData } from "react-router";
 
-export const loader = async ({ context, request, params }: LoaderFunctionArgs) => {
+export const loader = async ({ context, request, params }: Route.LoaderArgs) => {
     const userId = await getUserIdFromSession(context, request);
 
     if (!userId) {
@@ -45,10 +45,10 @@ order by published_at asc`)
 
     const [feeds, articles] = await Promise.all([getFeeds(), getArticles()]);
 
-    return json({
+    return {
         feeds, 
         articles
-    });
+    };
 }
 
 export default function Feed() {

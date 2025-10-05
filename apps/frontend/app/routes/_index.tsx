@@ -1,5 +1,4 @@
-import { json, redirect, type LoaderFunctionArgs, type MetaFunction } from "@remix-run/cloudflare";
-import { useLoaderData } from "@remix-run/react";
+import { redirect, useLoaderData, type LoaderFunctionArgs, type MetaFunction } from "react-router";
 import { Button } from "~/components/ui/button";
 import { getUserIdFromSession } from "~/sessions";
 
@@ -33,7 +32,7 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
     const redirectUri = `${context.cloudflare.env.BASE_URL}/auth/sso/google/callback`;
     const url = generateGoogleAuthUrl(context.cloudflare.env.GOOGLE_CLIENT_ID, redirectUri);
 
-    return json({ authUrl: url });
+    return { authUrl: url };
 }
 
 export default function Index() {

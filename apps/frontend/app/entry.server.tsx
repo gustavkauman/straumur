@@ -1,13 +1,9 @@
-/**
- * By default, Remix will handle generating the HTTP Response for you.
- * You are free to delete this file if you'd like to, but if you ever want it revealed again, you can run `npx remix reveal` ✨
- * For more information, see https://remix.run/file-conventions/entry.server
- */
-import * as Sentry from "@sentry/remix";
-import { AppLoadContext, EntryContext } from "@remix-run/cloudflare";
-import { RemixServer } from "@remix-run/react";
+import type { AppLoadContext, EntryContext } from "react-router";
 import { isbot } from "isbot";
-import { renderToReadableStream } from "react-dom/server";
+import reactRouterPkg from "react-dom/server";
+import { ServerRouter } from "react-router";
+
+const { renderToReadableStream } = reactRouterPkg;
 
 const ABORT_DELAY = 5000;
 
@@ -21,24 +17,11 @@ export default async function handleRequest(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   loadContext: AppLoadContext
 ) {
-    Sentry.init({
-        dsn: loadContext.cloudflare.env.SENTRY_DSN,
-        enabled: loadContext.cloudflare.env.SENTRY_ENABLED === "true",
-        environment: loadContext.cloudflare.env.SENTRY_ENVIRONMENT,
-        tracesSampleRate: 1.0,
-        autoInstrumentRemix: true,
-        tracePropagationTargets: ["localhost"]
-    });
-
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), ABORT_DELAY);
 
     const body = await renderToReadableStream(
-        <RemixServer
-        context={remixContext}
-        url={request.url}
-        abortDelay={ABORT_DELAY}
-        />,
+        <ServerRouter context={remixContext} url={request.url} />,
         {
             signal: controller.signal,
             onError(error: unknown) {
@@ -64,5 +47,3 @@ export default async function handleRequest(
         status: responseStatusCode,
     });
 }
-
-export const handleError = Sentry.sentryHandleError;

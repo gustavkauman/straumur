@@ -1,33 +1,21 @@
 import { sentryVitePlugin } from "@sentry/vite-plugin";
-import {
-  vitePlugin as remix,
-  cloudflareDevProxyVitePlugin as remixCloudflareDevProxy,
-} from "@remix-run/dev";
 import { defineConfig } from "vite";
+import { reactRouter } from "@react-router/dev/vite";
+import { cloudflareDevProxy } from "@react-router/dev/vite/cloudflare";
 import tsconfigPaths from "vite-tsconfig-paths";
 
-declare module "@remix-run/cloudflare" {
-  interface Future {
-    v3_singleFetch: true;
-  }
-}
-
 export default defineConfig({
-  plugins: [remixCloudflareDevProxy(), remix({
-    future: {
-      v3_fetcherPersist: true,
-      v3_relativeSplatPath: true,
-      v3_throwAbortReason: true,
-      v3_singleFetch: true,
-      v3_lazyRouteDiscovery: true,
-    },
-  }), tsconfigPaths(), sentryVitePlugin({
-    org: "kauman",
-    project: "straumur",
-    telemetry: false,
-  })],
-
+  plugins: [
+      cloudflareDevProxy(),
+      reactRouter(),
+      tsconfigPaths(),
+      sentryVitePlugin({
+          org: "kauman",
+          project: "straumur",
+          telemetry: false,
+      })
+  ],
   build: {
-    sourcemap: true
+      sourcemap: true
   }
 });

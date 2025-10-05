@@ -1,6 +1,7 @@
-import { LoaderFunctionArgs, redirect } from "@remix-run/cloudflare";
 import { v7 as uuid } from "uuid";
 import { createUserSession, getUserIdFromSession } from "~/sessions";
+import { Route } from "../+types/root";
+import { redirect } from "react-router";
 
 interface GoogleTokenInfo {
     iss: string;
@@ -61,32 +62,34 @@ async function verifyGoogleToken(token: string, clientId: string): Promise<Googl
 }
 
 async function exchangeCodeForToken(code: string, clientId: string, clientSecret: string, redirectUri: string): Promise<GoogleTokenResponse> {
+    const body = new URLSearchParams({
+        code,
+        client_id: clientId,
+        client_secret: clientSecret,
+        redirect_uri: redirectUri,
+        grant_type: 'authorization_code',
+    });
+
     const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: new URLSearchParams({
-            code,
-            client_id: clientId,
-            client_secret: clientSecret,
-            redirect_uri: redirectUri,
-            grant_type: 'authorization_code',
-        }),
+        body
     });
 
     if (!tokenResponse.ok) {
         const errorData = await tokenResponse.text();
+        console.log(tokenResponse);
         console.error('Token exchange failed:', errorData);
         throw new Error('Failed to exchange code for token');
     }
 
-    const tokenData = await tokenResponse.json();
-    return tokenData as GoogleTokenResponse;
+    return await tokenResponse.json() as GoogleTokenResponse;
 }
 
 
-export async function loader({ context, request }: LoaderFunctionArgs) {
+export async function loader({ context, request }: Route.LoaderArgs) {
     const userId = await getUserIdFromSession(context, request);
 
     if (userId && userId !== "")
@@ -108,7 +111,11 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
         throw new Error('No ID token received');
     }
 
+    console.log("Got token: ", tokenData);
+
     const userInfo = await verifyGoogleToken(tokenData.id_token, clientId);
+
+    console.log("User info: ", userInfo);
 
     if (!userInfo || !userInfo.email || !userInfo.given_name)
         throw Error("Failed to get user information from token.");
@@ -116,6 +123,8 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
     const db = context.cloudflare.env.DB;
 
     const identity = await getSsoIdentity(db, "google", userInfo.sub);
+
+    console.log("Identity: ", identity);
 
     let user: User | null = null;
 

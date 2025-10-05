@@ -7,5 +7,7 @@ node_modules
 
 .wrangler
 
+.react-router/
+
 # Sentry Config File
 .env.sentry-build-plugin

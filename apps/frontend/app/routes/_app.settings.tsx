@@ -1,13 +1,12 @@
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/cloudflare";
-import { json } from "@remix-run/cloudflare";
-import { Form, useActionData, useLoaderData, useNavigation } from "@remix-run/react";
 import { Feed } from "@straumur/types";
 import { Trash } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { Button } from "~/components/ui/button";
 import { getUserIdFromSession } from "~/sessions";
+import { Route } from "./+types/_app.settings";
+import { Form, useActionData, useLoaderData, useNavigation } from "react-router";
 
-export async function loader({ context, request }: LoaderFunctionArgs) {
+export async function loader({ context, request }: Route.LoaderArgs) {
     const userId = await getUserIdFromSession(context, request);
 
     if (!userId) {
@@ -46,10 +45,10 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
 
     const [feeds, user] = await Promise.all([getFeeds(), getUser()]);
 
-    return json({ feeds, user });
+    return { feeds, user };
 }
 
-export async function action({ context, request }: ActionFunctionArgs) {
+export async function action({ context, request }: Route.ActionArgs) {
     const userId = await getUserIdFromSession(context, request);
     const db = context.cloudflare.env.DB;
 
@@ -65,7 +64,7 @@ export async function action({ context, request }: ActionFunctionArgs) {
             const feedId = formData.get("feedId");
 
             if (typeof feedId !== "string") {
-                return json(
+                return Response.json(
                     { errors: { feed: "Feed ID is required" } },
                     { status: 400 }
                 );
@@ -76,8 +75,8 @@ export async function action({ context, request }: ActionFunctionArgs) {
             .run();
 
 
-            return json({ success: true });
-        };
+            return { success: true };
+        }
         case "add-feed": {
             const name = formData.get("name");
             const url = formData.get("url");
@@ -95,7 +94,7 @@ export async function action({ context, request }: ActionFunctionArgs) {
             }
 
             if (Object.keys(errors).length > 0) {
-                return json({ errors }, { status: 400 });
+                return Response.json({ errors }, { status: 400 });
             }
 
             const parsedUrl = new URL(String(url));
@@ -107,7 +106,7 @@ export async function action({ context, request }: ActionFunctionArgs) {
                 .run();
 
             if (feed.results.length > 0) {
-                return json({ success: true });
+                return { success: true };
             }
             
             await db
@@ -115,11 +114,11 @@ export async function action({ context, request }: ActionFunctionArgs) {
                 .bind(name, parsedUrl.toString(), faviconUrl, userId)
                 .run();
 
-            return json({ success: true });
+            return { success: true };
         }
     }
 
-    return json({ errors: { form: "Invalid intent" } }, { status: 400 });
+    return Response.json({ errors: { form: "Invalid intent" } }, { status: 400 });
 }
 
 function isValidUrl(string: string): boolean {

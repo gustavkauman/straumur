@@ -2,7 +2,7 @@
 name = "straumur"
 compatibility_date = "2025-01-21"
 compatibility_flags = ["nodejs_compat_v2"]
-pages_build_output_dir = "./build/client"
+main = "./workers/app.ts"
 version_metadata = { binding = "CF_VERSION_METADATA" }
 
 [vars]
