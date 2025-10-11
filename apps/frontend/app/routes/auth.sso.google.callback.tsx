@@ -111,11 +111,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
         throw new Error('No ID token received');
     }
 
-    console.log("Got token: ", tokenData);
-
     const userInfo = await verifyGoogleToken(tokenData.id_token, clientId);
-
-    console.log("User info: ", userInfo);
 
     if (!userInfo || !userInfo.email || !userInfo.given_name)
         throw Error("Failed to get user information from token.");
@@ -123,8 +119,6 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     const db = context.cloudflare.env.DB;
 
     const identity = await getSsoIdentity(db, "google", userInfo.sub);
-
-    console.log("Identity: ", identity);
 
     let user: User | null = null;
 
