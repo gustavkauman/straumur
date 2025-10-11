@@ -6,7 +6,11 @@ import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
   plugins: [
-      cloudflareDevProxy(),
+      cloudflareDevProxy({
+          persist: {
+              path: "./../../.wrangler/state/v3"
+          }
+      }),
       reactRouter(),
       tsconfigPaths(),
       sentryVitePlugin({

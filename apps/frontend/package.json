@@ -9,7 +9,6 @@
     "build": "react-router build",
     "dev": "react-router dev",
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
-    "start": "wrangler pages dev ./build/client --persist-to=./../../.wrangler/state",
     "typegen": "wrangler types",
     "cf-typegen": "wrangler types"
   },
