@@ -12,7 +12,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    name: Deploy
+    name: Build and Deploy
     steps:
       - uses: actions/checkout@v4
 
