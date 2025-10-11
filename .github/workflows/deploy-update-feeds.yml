@@ -20,12 +20,12 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-        working-directory: apps/update-feeds
 
       - name: Deploy
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: deploy --env production
           workingDirectory: apps/update-feeds
           wranglerVersion: "4"
