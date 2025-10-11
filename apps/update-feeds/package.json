@@ -1,23 +1,31 @@
 {
-  "name": "@straumur/update-feeds",
-  "version": "0.0.0",
-  "private": true,
-  "author": "Gustav Utke Kauman <hello@kauman.dev>",
-  "scripts": {
-    "deploy": "wrangler deploy",
-    "dev": "wrangler dev --test-scheduled --persist-to=./../../.wrangler/state",
-    "test": "vitest",
-    "cf-typegen": "wrangler types"
-  },
-  "dependencies": {
-	"@straumur/rss-parser": "workspace:*"
-  },
-  "devDependencies": {
-    "@cloudflare/vitest-pool-workers": "catalog:",
-    "@cloudflare/workers-types": "catalog:",
-	"@straumur/types": "workspace:*",
-    "typescript": "catalog:",
-    "vitest": "catalog:",
-    "wrangler": "catalog:"
-  }
+	"name": "@straumur/update-feeds",
+	"version": "0.0.0",
+	"private": true,
+	"author": "Gustav Utke Kauman <hello@kauman.dev>",
+	"type": "module",
+	"scripts": {
+		"build": "vite build",
+		"deploy": "wrangler deploy",
+		"dev": "wrangler dev --test-scheduled --persist-to=./../../.wrangler/state",
+		"test": "vitest",
+		"cf-typegen": "wrangler types"
+	},
+	"dependencies": {
+		"@straumur/rss-parser": "workspace:*"
+	},
+	"devDependencies": {
+		"@cloudflare/vite-plugin": "catalog:",
+		"@cloudflare/vitest-pool-workers": "catalog:",
+		"@cloudflare/workers-types": "catalog:",
+		"@straumur/tsconfig": "workspace:*",
+		"@straumur/types": "workspace:*",
+		"typescript": "catalog:",
+		"vite": "^6.3.6",
+		"vitest": "catalog:",
+		"wrangler": "catalog:"
+	},
+	"engines": {
+		"node": ">=20.0.0"
+	}
 }
