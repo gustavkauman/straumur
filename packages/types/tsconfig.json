@@ -1,3 +1,9 @@
 {
-  "extends": "@straumur/tsconfig/base.json"
+    "extends": "@straumur/tsconfig/base.json",
+    "include": [ "src/**/*.ts" ],
+    "exclude": [ "node_modules" ],
+    "compilerOptions": {
+        "outDir": "dist",
+        "rootDir": "src"
+    }
 }

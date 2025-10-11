@@ -1,17 +1,19 @@
 {
-  "name": "@straumur/monorepo",
-  "version": "0.0.0",
-  "private": true,
-  "author": "Gustav Utke Kauman <hello@kauman.dev>",
-  "packageManager": "pnpm@10.18.0",
-  "scripts": {
-    "db:migrate": "npx wrangler d1 migrations apply straumur -c=./apps/update-feeds/wrangler.toml --local --persist-to=./.wrangler/state",
-    "db:seed": "npx wrangler d1 execute straumur --file=./db-seeds/seed.sql -c=./apps/update-feeds/wrangler.toml --local --persist-to=./.wrangler/state"
-  },
-  "engines": {
-    "node": ">=20.0.0"
-  },
-  "devDependencies": {
-    "turbo": "^2.5.8"
-  }
+    "name": "@straumur/monorepo",
+    "version": "0.0.0",
+    "private": true,
+    "author": "Gustav Utke Kauman <hello@kauman.dev>",
+    "packageManager": "pnpm@10.18.0",
+    "scripts": {
+        "build:frontend": "turbo build --filter=@straumur/frontend...",
+        "build:update-feeds": "turbo build --filter=@straumur/update-feeds...",
+        "db:migrate": "npx wrangler d1 migrations apply straumur -c=./apps/update-feeds/wrangler.toml --local --persist-to=./.wrangler/state",
+        "db:seed": "npx wrangler d1 execute straumur --file=./db-seeds/seed.sql -c=./apps/update-feeds/wrangler.toml --local --persist-to=./.wrangler/state"
+    },
+    "engines": {
+        "node": ">=20.0.0"
+    },
+    "devDependencies": {
+        "turbo": "^2.5.8"
+    }
 }

@@ -7,7 +7,11 @@ on:
       - master
     paths:
       - 'apps/update-feeds/**'
+      - 'packages/**'
       - '.github/workflows/deploy-update-feeds.yml'
+
+env:
+  CLOUDFLARE_ENV: "production"
 
 jobs:
   deploy:
@@ -21,12 +25,15 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Build
+        run: pnpm run build:update-feeds
+
       - name: Deploy
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: deploy --env production
+          command: deploy
           workingDirectory: apps/update-feeds
           wranglerVersion: "4"
           packageManager: pnpm
