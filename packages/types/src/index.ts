@@ -15,3 +15,5 @@ export type Article = {
   published_at: Date;
 }
 
+export type ArticleWithAdditionalData = Article & { feed_name: string, favicon_url: string };
+
